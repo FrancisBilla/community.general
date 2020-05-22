@@ -37,6 +37,11 @@ options:
       - The path to the root of the Terraform directory with the
         vars.tf/main.tf/etc to use.
     required: true
+  log_error_path:
+    description:
+      - The path to the root of the Terraform directory with the
+        vars.tf/main.tf/etc to use.
+    required: false  
   workspace:
     description:
       - The terraform workspace to work with.
@@ -110,11 +115,13 @@ EXAMPLES = """
 # Basic deploy of a service
 - terraform:
     project_path: '{{ project_dir }}'
+    log_error_path: '{{ error_dir }}'
     state: present
 
 # Define the backend configuration at init
 - terraform:
     project_path: 'project/'
+    log_error_path: 'error/'
     state: "{{ state }}"
     force_init: true
     backend_config:
@@ -214,7 +221,7 @@ def _state_args(state_file):
           module.fail_json(msg='Could not find state_file "{0}", check the path and try again.'.format(state_file))
       return []
   except Exception as e:
-    print(e)
+    e
 
 def init_plugins(bin_path, project_path, backend_config):
     command = [bin_path, 'init', '-input=false']
@@ -246,7 +253,7 @@ def get_workspace_context(bin_path, project_path):
             workspace_ctx["all"].append(stripped_item)
     return workspace_ctx
   except Exception as e:
-    print (e)  
+    e  
 
 
 def _workspace_cmd(bin_path, project_path, action, workspace):
@@ -257,7 +264,7 @@ def _workspace_cmd(bin_path, project_path, action, workspace):
         module.fail_json(msg="Failed to {0} workspace:\r\n{1}".format(action, err))
     return rc, out, err
   except Exception as e:
-    print(e)
+    e
 
 def create_workspace(bin_path, project_path, workspace):
     _workspace_cmd(bin_path, project_path, 'new', workspace)
@@ -297,7 +304,7 @@ def build_plan(command, project_path, variables_args, state_file, targets, state
 
     module.fail_json(msg='Terraform plan failed with unexpected exit code {0}. \r\nSTDOUT: {1}\r\n\r\nSTDERR: {2}'.format(rc, out, err))
   except Exception as e:
-    print(e)
+    e
 
 def main():
     global module
@@ -437,7 +444,7 @@ try:
   main()
 except Exception as e:
   logging.error('Error occurred '+ str(e))
-  print('Error on occurred ', str(e))  
+  'Error on occurred ', str(e)  
 
 
 if __name__ == '__main__':
