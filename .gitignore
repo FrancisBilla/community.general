@@ -389,4 +389,3 @@ $RECYCLE.BIN/
 # Virtaul environment Directory
 venv/
 .vscode/
-gitignore
